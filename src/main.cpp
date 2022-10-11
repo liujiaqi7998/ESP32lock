@@ -1,7 +1,4 @@
-#include <Arduino.h>
-#include <Serial_LCD.h>
-#include <LCD_keypad.h>
-#include <Unclock_Servo.h>
+#include <Libraries.h>
 
 void keypad_Task(void *parameter)
 {
