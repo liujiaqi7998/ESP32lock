@@ -1,10 +1,10 @@
 #include "Serial_LCD.h"
 #include "LCD_callback.h"
-#include "SoftwareSerial.h"
+#include "HardwareSerial.h"
 #include "LCD_keypad.h"
 
-int page_state; // 屏幕当前页面ID标记
-SoftwareSerial LCD_Serial; //屏幕软串口
+int page_state;            // 屏幕当前页面ID标记
+HardwareSerial LCD_Serial(1); //屏幕软串口
 
 void LCD_debug(String str)
 {
@@ -13,7 +13,7 @@ void LCD_debug(String str)
 
 void LCD_setup()
 {
-  LCD_Serial.begin(9600, SWSERIAL_8N1, 22, 23);
+  LCD_Serial.begin(9600, SERIAL_8N1, 22, 23);
   //因为串口屏开机会发送88 ff ff ff,所以要清空串口缓冲区
   while (LCD_Serial.read() >= 0)
     ;                               //清空串口缓冲区
@@ -25,7 +25,7 @@ void LCD_setup()
 
 void LCD_print(String out_data)
 {
-  out_data = out_data + "\xff\xff\xff";
+  out_data = "\xff\xff\xff" + out_data + "\xff\xff\xff";
   LCD_Serial.print(out_data);
 }
 

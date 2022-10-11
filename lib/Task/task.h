@@ -1,0 +1,8 @@
+#ifndef __TASK_H
+#define __TASK_H
+#include <Arduino.h>
+void Task_Die();
+void keypad_Task(void *parameter);
+void LCD_Task(void *parameter);
+void Task_int();
+#endif // __TASK_H
