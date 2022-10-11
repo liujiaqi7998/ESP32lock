@@ -172,5 +172,5 @@ void show_admin(String password)
  */
 void show_menu()
 {
-  LCD_print("page 2");
+  LCD_print("page 1");
 }

@@ -1,4 +1,7 @@
-#include <Libraries.h>
+#include <Arduino.h>
+#include <Serial_LCD.h>
+#include <LCD_keypad.h>
+#include <Unclock_Servo.h>
 
 void keypad_Task(void *parameter)
 {
@@ -27,22 +30,6 @@ void setup()
   LCD_setup();
   unclock_servo_setup();
 
-  xTaskCreate(
-      keypad_Task,   /* Task function. */
-      "keypad_Task", /* String with name of task. */
-      10000,         /* Stack size in bytes. */
-      NULL,          /* Parameter passed as input of the task */
-      1,             /* Priority of the task. */
-      NULL);         /* Task handle. */
-
-  xTaskCreate(
-      LCD_Task,   /* Task function. */
-      "LCD_Task", /* String with name of task. */
-      10000,      /* Stack size in bytes. */
-      NULL,       /* Parameter passed as input of the task */
-      1,          /* Priority of the task. */
-      NULL);      /* Task handle. */
-
   //当按下 IO0 按钮，进入菜单
   pinMode(0, INPUT);
   attachInterrupt(0, show_menu, FALLING); // 设置外部中断
@@ -50,5 +37,7 @@ void setup()
 
 void loop()
 {
+  LCD_while();
+  keypad_while();
   // put your main code here, to run repeatedly:
 }
