@@ -3,4 +3,5 @@
 #include <Arduino.h>
 void network_config_begin();
 void setup_wifi();
+void Network_while();
 #endif

@@ -58,3 +58,7 @@ void network_config_begin()
         NULL);                 /* Task handle. */
     Task_Die();                // 先把所有线程全部结束
 }
+
+void Network_while()
+{
+}

@@ -4,5 +4,6 @@
 void Task_Die();
 void keypad_Task(void *parameter);
 void LCD_Task(void *parameter);
+void Network_Task(void *parameter);
 void Task_int();
 #endif // __TASK_H
