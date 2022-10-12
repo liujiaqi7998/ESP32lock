@@ -71,6 +71,7 @@ void Network_while()
             // 联网成功回调
             Serial.print("[网络管理]:联网成功，IP:");
             Serial.println(WiFi.localIP());
+            configTime(60*60*8, 0, "ntp3.aliyun.com");    // 用的阿里云的服务器
             // 既然已经联网成功了，那为什么不挂载 MQTT 呢
             mqtt_int();
         }

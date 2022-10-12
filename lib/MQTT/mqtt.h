@@ -5,4 +5,5 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length);
 void mqtt_int();
 void mqtt_disable();
 void mqtt_while();
+void mqtt_show_tips(String title, String center);
 #endif // __TASK_H
