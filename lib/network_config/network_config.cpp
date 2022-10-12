@@ -38,14 +38,11 @@ void network_config_Task(void *parameter)
         LCD_print("network.t0.txt=\"|\"");
         delay(500);
     }
-    prefs.putString("ssid", WiFi.SSID());     // 写入ssid
-    prefs.putString("passwd", WiFi.psk());    // 写入passwd
-    prefs.end();                              // 关闭命名空间config
+    prefs.putString("ssid", WiFi.SSID());  // 写入ssid
+    prefs.putString("passwd", WiFi.psk()); // 写入passwd
+    prefs.end();                           // 关闭命名空间config
     Serial.println("[网络管理]:配网完成，等待30秒重启");
-    LCD_print("tips.title.txt=\"配网成功，请重启\"");
-    LCD_print("tips.center.txt=\"WIFI: " + WiFi.SSID() + "\\r密码: " + WiFi.psk() + "\"");
-    LCD_print("tips.last_page.val=0");
-    LCD_print("page tips");
+    show_tips("配网成功，请重启", WiFi.SSID() + "\\r密码: " + WiFi.psk(), "0"); // 显示提示
     delay(30000);
     ESP.restart();
 }
