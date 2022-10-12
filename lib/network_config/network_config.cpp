@@ -3,6 +3,9 @@
 #include <Preferences.h>
 #include <task.h>
 #include <Serial_LCD.h>
+#include "mqtt.h"
+
+wl_status_t last_network_state = WL_IDLE_STATUS;
 
 void setup_wifi()
 {
@@ -61,4 +64,26 @@ void network_config_begin()
 
 void Network_while()
 {
+    if (WiFi.status() != last_network_state)
+    {
+        if (WiFi.status() == WL_CONNECTED)
+        {
+            // 联网成功回调
+            Serial.print("[网络管理]:联网成功，IP:");
+            Serial.println(WiFi.localIP());
+            // 既然已经联网成功了，那为什么不挂载 MQTT 呢
+            mqtt_int();
+        }
+        else
+        {
+            // 网络断开回调
+            Serial.println("[网络管理]:网络断开");
+            mqtt_disable();
+        }
+    }
+    last_network_state = WiFi.status();
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        mqtt_while();
+    }
 }
