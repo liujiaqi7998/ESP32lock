@@ -2,8 +2,9 @@
 #include "LCD_callback.h"
 #include "HardwareSerial.h"
 #include "LCD_keypad.h"
+#include "network_config.h"
 
-int page_state;            // 屏幕当前页面ID标记
+int page_state;               // 屏幕当前页面ID标记
 HardwareSerial LCD_Serial(1); //屏幕软串口
 
 void LCD_debug(String str)
@@ -113,6 +114,11 @@ void deal_lcd_cmd(String raw_data)
     page_state = raw_data_arry.at(1).toInt();
     LCD_debug("屏幕切换到" + String(page_state));
   }
+  if (raw_data_arry.at(0) == "net")
+  {
+    LCD_print("page 10");
+    network_config_begin();
+  }
 }
 
 /**
@@ -172,5 +178,6 @@ void show_admin(String password)
  */
 void show_menu()
 {
-  LCD_print("page 1");
+  if (page_state == 0)
+    LCD_print("page 1");
 }
