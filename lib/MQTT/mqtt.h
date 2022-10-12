@@ -6,4 +6,5 @@ void mqtt_int();
 void mqtt_disable();
 void mqtt_while();
 void mqtt_show_tips(String title, String center);
+void mqtt_check_online();
 #endif // __TASK_H

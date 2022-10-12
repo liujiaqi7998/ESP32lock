@@ -3,6 +3,7 @@
 #include <PubSubClient.h>
 #include "ArduinoJson.h"
 #include <Preferences.h>
+#include "WiFi.h"
 
 // MQTT Broker
 const char *mqtt_broker = "broker-cn.emqx.io"; //服务器地址
@@ -99,6 +100,11 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
         mqtt_show_tips("修改成功", "普通密码已修改");
         return;
     }
+    if (type == "check")
+    {
+        mqtt_check_online();
+        return;
+    }
 }
 
 // MQTT控制网页弹出提示框
@@ -112,6 +118,17 @@ void mqtt_show_tips(String title, String center)
     serializeJson(doc, json);
     client.publish(send_topic, json.c_str());
 }
+// 在线设备检查
+void mqtt_check_online()
+{
+    DynamicJsonDocument doc(2048);
+    doc["type"] = "online";
+    doc["MAC"] = String(WiFi.macAddress());
+    doc["IP"] = WiFi.localIP().toString();
+    String json;
+    serializeJson(doc, json);
+    client.publish(send_topic, json.c_str());
+}
 
 void mqtt_int()
 {
@@ -120,6 +137,7 @@ void mqtt_int()
     client.connect(clientID, mqtt_username, mqtt_password);
     client.setCallback(&mqtt_callback);
     client.subscribe(rec_topic);
+    mqtt_check_online();
     Serial.println("[网络管理]:mqtt连接成功");
 }
 
