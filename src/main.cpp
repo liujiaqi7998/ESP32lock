@@ -7,7 +7,8 @@ void setup()
   LCD_setup();
   unclock_servo_setup();
   setup_wifi();
-
+  FingerPrint_Init();
+  
   Task_int();
   //当按下 IO0 按钮，进入菜单
   pinMode(0, INPUT);

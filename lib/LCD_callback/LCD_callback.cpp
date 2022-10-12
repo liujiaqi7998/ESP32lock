@@ -2,6 +2,7 @@
 #include "Serial_LCD.h"
 #include <Preferences.h>
 #include <Unclock_Servo.h>
+#include <FINGERPrint.h>
 
 /**
  * 添加用户
@@ -11,6 +12,8 @@
 void add_user(String school_id)
 {
   LCD_debug("添加用户: " + school_id);
+  // 调用欧阳的指纹录入接口
+  FingerPrint_Enroll(school_id);
 }
 
 /**
@@ -21,6 +24,8 @@ void add_user(String school_id)
 void delete_user(String school_id)
 {
   LCD_debug("删除用户: " + school_id);
+  // 调用欧阳的指纹删除接口
+  FingerPrint_Delete(school_id);
 }
 
 /**
