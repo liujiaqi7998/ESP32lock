@@ -12,6 +12,11 @@
 void add_user(String school_id)
 {
   LCD_debug("添加用户: " + school_id);
+  if (school_id.length() < 1 || school_id.length() > 20)
+  {
+    show_tips("提示", "学号长度应为1-20位\\r请重新设置", "6");
+    return;
+  }
   // 调用欧阳的指纹录入接口
   FingerPrint_Enroll(school_id);
 }
@@ -24,6 +29,11 @@ void add_user(String school_id)
 void delete_user(String school_id)
 {
   LCD_debug("删除用户: " + school_id);
+  if (school_id.length() < 1 || school_id.length() > 20)
+  {
+    show_tips("提示", "学号长度应为1-20位\\r请重新设置", "6");
+    return;
+  }
   // 调用欧阳的指纹删除接口
   FingerPrint_Delete(school_id);
 }
@@ -36,6 +46,12 @@ void delete_user(String school_id)
 void set_admin(String school_id)
 {
   LCD_debug("设置管理员: " + school_id);
+  if (school_id.length() < 1 || school_id.length() > 20)
+  {
+    show_tips("提示", "学号长度应为1-20位\\r请重新设置", "6");
+    return;
+  }
+  show_tips("提示", "该功能无效\\r请使用密码进入菜单", "6");
 }
 
 /**
@@ -128,4 +144,5 @@ void unlock(String password)
     unclock_servo_open();
     return;
   }
+  show_tips("提示", "无效密码", "0");
 }

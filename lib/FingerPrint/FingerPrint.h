@@ -39,8 +39,12 @@ uint16_t FingerPrint_Delete();
 void FingerPrint_ShowList();
 void FingerPrint_Alert();
 void FingerPrint_ClearDB();
+void FingerPrint_Search();
 String FingerPrint_GetDataJson();
-
+void Store_Format();
+void Store_Init();
+void FingerPrint_Unlock();
+void Finger_Check_Task(void *parameter);
 //×Óº¯Êý
 void FingerPrint_ShowParameters();
 const char *FingerPrint_AnalyzeStatus(uint16_t status_code);

@@ -1,6 +1,9 @@
 #include <FINGERPrint.h>
 #include <Variables.h>
 #include <Serial_LCD.h>
+#include <Unclock_Servo.h>
+
+extern int page_state; // 屏幕当前页面ID标记
 /**
  * @author  @Varocol
  * @brief   指纹模块初始化
@@ -104,6 +107,7 @@ void FingerPrint_Init()
     }
     else
     {
+        show_tips("严重错误", "未能找到指纹识别模块\\r请重启", "0");
         PLATFORM_SERIAL.println("[指纹模块]:未能找到指纹识别模块");
         PLATFORM_SERIAL.println("[指纹模块]:指纹识别模块初始化失败");
     }
@@ -248,7 +252,7 @@ void FingerPrint_Enroll(String input_id)
             school_id.c_str(),
             operations_cnt);
         PLATFORM_SERIAL.println("<---------------------------------->");
-        show_tips("录入失败", "指纹库已有该指纹\\r[指纹ID:" + String(PLATFORM_FINGER.fingerID) + "|学号:" + school_id.c_str() + "|匹配度:" + String(PLATFORM_FINGER.confidence) + "]", "2");
+        show_tips("录入失败", "指纹库已有该指纹\\r指纹ID:" + String(PLATFORM_FINGER.fingerID) + "  学号:" + school_id.c_str() + "\\r匹配度:" + String(PLATFORM_FINGER.confidence), "2");
         return;
     }
 #if FINGER_AUTOENROLL
@@ -417,13 +421,37 @@ uint16_t FingerPrint_IDSearch()
     // PLATFORM_SERIAL.println("<---------------------------------->");
     return status;
 }
+
+void Finger_Check_Task(void *parameter)
+{
+    Serial.println("[线程管理]:启动指纹识别线程");
+    FingerPrint_Search();
+    vTaskDelete(NULL);
+}
+
+void FingerPrint_Unlock()
+{
+    delay(500);
+    if (page_state == 0)
+    {
+        LCD_print("page 11");
+        xTaskCreate(
+            Finger_Check_Task,   /* Task function. */
+            "Finger_Check_Task", /* String with name of task. */
+            10000,               /* Stack size in bytes. */
+            NULL,                /* Parameter passed as input of the task */
+            1,                   /* Priority of the task. */
+            NULL);               /* Task handle. */
+    }
+}
+
 /**
  * @author  @Varocol
  * @brief   指纹查找(通过指纹搜索)
  * @param   None
  * @return  指纹模块状态码
  */
-uint16_t FingerPrint_Search()
+void FingerPrint_Search()
 {
     uint8_t status;
     PLATFORM_SERIAL.println("[指纹模块]:开始查找指纹");
@@ -465,6 +493,7 @@ uint16_t FingerPrint_Search()
             operations_cnt);
         finger_data[String(PLATFORM_FINGER.fingerID)][finger_keys.operations_cnt] = operations_cnt + 1;
         FingerPrint_WriteList();
+        unclock_servo_open();
         show_tips("提示", "欢迎 学号:" + school_id + "\\r指纹ID:" + String(PLATFORM_FINGER.fingerID) + "\\r匹配得分:" + String(PLATFORM_FINGER.confidence), "0");
     }
     //没有该指纹
@@ -480,7 +509,7 @@ uint16_t FingerPrint_Search()
         PLATFORM_SERIAL.println(FingerPrint_AnalyzeStatus(status));
         show_tips("请重试", FingerPrint_AnalyzeStatus(status), "0");
     }
-    return status;
+    return;
 }
 /**
  * @author  @Varocol
@@ -587,7 +616,7 @@ void FingerPrint_WriteList()
     String output;
     serializeJson(finger_data, output);
     finger_file.print(output);
-    PLATFORM_SERIAL.println(output);
+    // PLATFORM_SERIAL.println(output); //打印输出用户列表到串口
     //关闭文件
     finger_file.close();
     PLATFORM_SERIAL.println("[文件系统]:数据写入成功");
@@ -651,16 +680,15 @@ void FingerPrint_Alert()
  */
 void FingerPrint_ShowList()
 {
-    PLATFORM_SERIAL.println("<-------------指纹索引表------------>");
+    PLATFORM_SERIAL.println("[指纹模块]:指纹索引表");
     for (uint16_t el : PLATFORM_FINGER.IndexTable)
     {
         PLATFORM_SERIAL.printf(
-            "[指纹ID:%d|学号:%s|搜索次数:%d]\n",
+            "[指纹模块]:[指纹ID:%d|学号:%s|搜索次数:%d]\n",
             el,
             finger_data[String(el)][finger_keys.school_id].as<String>().c_str(),
             finger_data[String(el)][finger_keys.operations_cnt].as<uint32_t>());
     }
-    PLATFORM_SERIAL.println("<----------------------------------->");
 }
 
 /**
@@ -690,4 +718,46 @@ void FingerPrint_ClearDB()
         finger_data.clear();
     }
     FingerPrint_WriteList();
+}
+
+/**
+ * @author  @Varocol
+ * @brief   文件系统格式化
+ * @param   None
+ * @return  None
+ */
+void Store_Init()
+{
+    PLATFORM_SERIAL.println("[文件系统]:打开SPIFFS");
+    uint8_t time_limit = FINGER_TIMELIMIT;
+    while (!SPIFFS.begin() && time_limit)
+    {
+        PLATFORM_SERIAL.print(".");
+        time_limit--;
+        delay(1);
+    }
+    PLATFORM_SERIAL.println();
+    if (time_limit == 0)
+    {
+        PLATFORM_SERIAL.println("[文件系统]:SPIFFS无法打开");
+        Store_Format(); //格式化文件系统
+        Store_Init();   //递归一下
+    }
+    else
+    {
+        PLATFORM_SERIAL.println("[文件系统]:SPIFFS打开成功");
+    }
+    SPIFFS.end();
+}
+
+/**
+ * @author  @Varocol
+ * @brief   文件系统格式化
+ * @param   None
+ * @return  None
+ */
+void Store_Format()
+{
+    PLATFORM_SERIAL.println("[文件系统]:文件系统格式化");
+    SPIFFS.format();
 }
