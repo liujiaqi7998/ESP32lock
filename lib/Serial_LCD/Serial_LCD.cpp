@@ -3,6 +3,7 @@
 #include "HardwareSerial.h"
 #include "LCD_keypad.h"
 #include "network_config.h"
+#include "debug.h"
 
 int page_state;               // 屏幕当前页面ID标记
 HardwareSerial LCD_Serial(1); //屏幕软串口
@@ -118,6 +119,23 @@ void deal_lcd_cmd(String raw_data)
   {
     LCD_print("page 10");
     network_config_begin();
+  }
+  if (raw_data_arry.at(0) == "dbg")
+  {
+    if (raw_data_arry.at(1) == "lcd")
+    {
+      debug_LCD();
+    }
+    if (raw_data_arry.at(1) == "fig")
+    {
+      debug_finger();
+    }
+  }
+  if (raw_data_arry.at(0) == "clean")
+  {
+  }
+  if (raw_data_arry.at(0) == "ota")
+  {
   }
 }
 
