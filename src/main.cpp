@@ -3,7 +3,7 @@
 void setup()
 {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(9600);
   LCD_setup();           //初始化LCD
   Store_Init();          //初始化存储
   unclock_servo_setup(); //初始化舵机
