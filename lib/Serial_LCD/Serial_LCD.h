@@ -19,5 +19,6 @@ void show_confirm(String title, String center, String last_page, String cmd);
 void show_tips(String title, String center, String last_page);
 void back_home_page();
 void show_menu();
+void show_first();
 
 #endif // __Serial_LCD_h

@@ -15,13 +15,13 @@ void LCD_debug(String str)
 
 void LCD_setup()
 {
-  LCD_Serial.begin(9600, SERIAL_8N1, 22, 23);
+  LCD_Serial.begin(115200, SERIAL_8N1, 22, 23);
   //因为串口屏开机会发送88 ff ff ff,所以要清空串口缓冲区
   while (LCD_Serial.read() >= 0)
     ;                               //清空串口缓冲区
   LCD_Serial.print("\xff\xff\xff"); //过滤数据
   page_state = 0;
-  LCD_print("page 0");
+  LCD_print("page 13");
   LCD_debug("屏幕初始化成功");
 }
 
@@ -133,6 +133,7 @@ void deal_lcd_cmd(String raw_data)
   }
   if (raw_data_arry.at(0) == "clean")
   {
+    Return_to_factory();
   }
   if (raw_data_arry.at(0) == "ota")
   {
@@ -196,6 +197,20 @@ void show_admin(String password)
  */
 void show_menu()
 {
-  if (page_state == 0)
-    LCD_print("page 1");
+  delay(100);
+  //检测GPIO0电平（消抖）
+  if (digitalRead(0) == 0)
+  {
+    if (page_state == 0)
+      LCD_print("page 1");
+  }
+}
+
+/**
+ * 开机画面
+ * @return 空
+ */
+void show_first()
+{
+  LCD_print("page 13");
 }

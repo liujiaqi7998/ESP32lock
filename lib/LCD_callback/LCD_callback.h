@@ -10,5 +10,5 @@ void set_admin(String school_id);
 void change_user_password(String password);
 void change_admin_password(String password);
 void unlock(String password);
-
+void Return_to_factory();
 #endif // __LCD_CALLBACK_h

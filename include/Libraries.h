@@ -8,5 +8,6 @@
 #include <LCD_keypad.h>
 #include <Serial_LCD.h>
 #include <Unclock_Servo.h>
+#include <debug.h>
 
 #endif //__LIBRARIES_H

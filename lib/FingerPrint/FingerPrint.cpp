@@ -431,17 +431,21 @@ void Finger_Check_Task(void *parameter)
 
 void FingerPrint_Unlock()
 {
-    delay(500);
-    if (page_state == 0)
+    delay(700);
+    //检测GPIO18电平（消抖）
+    if (digitalRead(18) == HIGH)
     {
-        LCD_print("page 11");
-        xTaskCreate(
-            Finger_Check_Task,   /* Task function. */
-            "Finger_Check_Task", /* String with name of task. */
-            10000,               /* Stack size in bytes. */
-            NULL,                /* Parameter passed as input of the task */
-            1,                   /* Priority of the task. */
-            NULL);               /* Task handle. */
+        if (page_state == 0)
+        {
+            LCD_print("page 11");
+            xTaskCreate(
+                Finger_Check_Task,   /* Task function. */
+                "Finger_Check_Task", /* String with name of task. */
+                10000,               /* Stack size in bytes. */
+                NULL,                /* Parameter passed as input of the task */
+                1,                   /* Priority of the task. */
+                NULL);               /* Task handle. */
+        }
     }
 }
 
@@ -747,6 +751,7 @@ void Store_Init()
     {
         PLATFORM_SERIAL.println("[文件系统]:SPIFFS打开成功");
     }
+    Store_Check();
     SPIFFS.end();
 }
 
@@ -760,4 +765,32 @@ void Store_Format()
 {
     PLATFORM_SERIAL.println("[文件系统]:文件系统格式化");
     SPIFFS.format();
+}
+
+/**
+ * @author  @Varocol
+ * @brief   恢复文件系统
+ * @param   None
+ * @return  None
+ */
+void Store_Check()
+{
+    //进入系统后直接恢复文件系统
+    PLATFORM_SERIAL.println("[文件系统]:文件系统检查恢复");
+    SPIFFS.check();
+}
+
+/**
+ * @author  @Varocol
+ * @brief   获取数据JSON包
+ * @param   None
+ * @return  None
+ */
+String FingerPrint_GetDataJson()
+{
+    PLATFORM_SERIAL.println("获取数据JSON包");
+    FingerPrint_LoadList();
+    String result;
+    serializeJson(finger_data, result);
+    return result;
 }

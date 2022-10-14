@@ -146,3 +146,13 @@ void unlock(String password)
   }
   show_tips("提示", "无效密码", "0");
 }
+
+void Return_to_factory()
+{
+  Preferences prefs;     // 声明Preferences对象
+  prefs.begin("config"); // 打开命名空间config
+  prefs.clear();         // 清除数据
+  FingerPrint_ClearDB(); //清空指纹库
+  Store_Format();        //格式化存储器
+  ESP.restart();
+}

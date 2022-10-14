@@ -10,16 +10,19 @@ extern HardwareSerial mySerial;
 void debug_LCD_Task(void *parameter)
 {
     Serial.println("[调试]:开始调试屏幕，转发屏幕数据");
+
     LCD_print("page 8");
     LCD_print("backtim.en=0");
     LCD_print("t0.txt=\"调试屏幕中\"");
+
+    delay(100);
     while (1)
     {
-        if (Serial.available() > 0)
+        while (Serial.available())
         {
             LCD_Serial.write(Serial.read());
         }
-        if (LCD_Serial.available() > 0)
+        while (LCD_Serial.available())
         {
             Serial.write(LCD_Serial.read());
         }
@@ -30,18 +33,21 @@ void debug_LCD_Task(void *parameter)
 void debug_finger_Task(void *parameter)
 {
     Serial.println("[调试]:开始调试指纹模块，转发指纹模块数据");
+
     LCD_print("page 8");
     LCD_print("backtim.en=0");
     LCD_print("t0.txt=\"调试指纹模块中\"");
+
+    delay(100);
     while (1)
     {
-        if (Serial.available() > 0)
-        {
-            mySerial.write(Serial.read());
-        }
-        if (mySerial.available() > 0)
+        while (mySerial.available())
         {
             Serial.write(mySerial.read());
+        }
+        while (Serial.available())
+        {
+            mySerial.write(Serial.read());
         }
         delay(1);
     }
