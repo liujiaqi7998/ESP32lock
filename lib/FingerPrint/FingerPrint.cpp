@@ -431,7 +431,7 @@ void Finger_Check_Task(void *parameter)
 
 void FingerPrint_Unlock()
 {
-    delay(700);
+    delay(800);
     //ºÏ≤‚GPIO18µÁ∆Ω£®œ˚∂∂£©
     if (digitalRead(18) == HIGH)
     {

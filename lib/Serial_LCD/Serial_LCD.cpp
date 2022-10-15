@@ -197,7 +197,7 @@ void show_admin(String password)
  */
 void show_menu()
 {
-  delay(100);
+  delay(800);
   //ºÏ≤‚GPIO0µÁ∆Ω£®œ˚∂∂£©
   if (digitalRead(0) == 0)
   {
