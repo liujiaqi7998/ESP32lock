@@ -5,6 +5,7 @@
 #include "network_config.h"
 #include "debug.h"
 
+
 int page_state;               // 屏幕当前页面ID标记
 HardwareSerial LCD_Serial(1); //屏幕软串口
 
@@ -137,6 +138,7 @@ void deal_lcd_cmd(String raw_data)
   }
   if (raw_data_arry.at(0) == "ota")
   {
+    //star_ota();
   }
 }
 

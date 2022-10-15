@@ -73,18 +73,18 @@ void Network_while()
             Serial.println(WiFi.localIP());
             configTime(60*60*8, 0, "ntp3.aliyun.com");    // 用的阿里云的服务器
             // 既然已经联网成功了，那为什么不挂载 MQTT 呢
-            mqtt_int();
+            // mqtt_int();
         }
         else
         {
             // 网络断开回调
             Serial.println("[网络管理]:网络断开");
-            mqtt_disable();
+            // mqtt_disable();
         }
     }
     last_network_state = WiFi.status();
     if (WiFi.status() == WL_CONNECTED)
     {
-        mqtt_while();
+        // mqtt_while();
     }
 }

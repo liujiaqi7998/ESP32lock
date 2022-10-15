@@ -8,20 +8,27 @@ Servo unclock_servo;
 
 void unclock_servo_setup()
 {
-    ESP32PWM::allocateTimer(0);
+    ESP32PWM::allocateTimer(3);
     unclock_servo.attach(servo_pin, 1000, 2000);
+    unclock_servo.setPeriodHertz(50); // 开启频率为50Hz
 }
 
 void open_Task(void *parameter)
 {
     Serial.println("[硬件控制]: 解锁");
-    unclock_servo.setPeriodHertz(50); // 开启频率为50Hz
-    unclock_servo.write(open_angle);
+    for (int i = close_angle; i < open_angle; i++)
+    {
+        unclock_servo.write(i);
+        delay(10);
+    }
     delay(1000);
     Serial.println("[硬件控制]: 上锁");
-    unclock_servo.write(close_angle);
+    for (int i = open_angle; i > close_angle; i--)
+    {
+        unclock_servo.write(i);
+        delay(10);
+    }
     delay(1000);
-    unclock_servo.setPeriodHertz(0); // 关闭频率，防止烧舵机
     vTaskDelete(NULL);
 }
 

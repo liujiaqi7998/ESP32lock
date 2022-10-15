@@ -1,10 +1,15 @@
 #include <Libraries.h>
 
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncElegantOTA.h>
+AsyncWebServer server(80);
+
 void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  LCD_setup();  //初始化LCD
+  LCD_setup(); //初始化LCD
 
   show_first(); //开机画面
   delay(500);
@@ -19,6 +24,13 @@ void setup()
   //当有手指在指纹传感器上，准备指纹识别
   pinMode(18, INPUT_PULLDOWN);
   attachInterrupt(18, FingerPrint_Unlock, RISING); // 设置外部中断
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(200, "text/plain", "Hi! This is a sample response."); });
+  AsyncElegantOTA.begin(&server); // Start AsyncElegantOTA
+  server.begin();
+
+  //int_bt_Serial();  // 启动蓝牙串口
   back_home_page(); //开机完成，返回主屏
 }
 

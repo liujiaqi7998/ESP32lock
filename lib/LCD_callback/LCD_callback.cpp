@@ -3,6 +3,7 @@
 #include <Preferences.h>
 #include <Unclock_Servo.h>
 #include <FINGERPrint.h>
+#include <Variables.h>
 
 /**
  * 添加用户
@@ -147,8 +148,14 @@ void unlock(String password)
   show_tips("提示", "无效密码", "0");
 }
 
+/**
+ * 恢复出厂回调
+ * @param 空
+ * @return 空
+ */
 void Return_to_factory()
 {
+  LCD_print("t0.txt=\"请稍后\"");
   Preferences prefs;     // 声明Preferences对象
   prefs.begin("config"); // 打开命名空间config
   prefs.clear();         // 清除数据
@@ -156,3 +163,32 @@ void Return_to_factory()
   Store_Format();        //格式化存储器
   ESP.restart();
 }
+
+/**
+ * 显示指纹列表回调
+ * @param 空
+ * @return 空
+ */
+int page_position = 0;
+void Show_finger_list()
+{
+  uint16_t cost = PLATFORM_FINGER.IndexTable.size();
+  if (cost == 0)
+  {
+    show_tips("提示", "指纹库为空", "0");
+    return;
+  }
+
+  for (int m = 0; m < 5; m = m + 1)
+  {
+    int now_position = page_position + m;
+    String temp = "ID:" + String(now_position) + " 学号:" + finger_data[String(now_position)][finger_keys.school_id].as<String>() + " 次数:" + finger_data[String(now_position)][finger_keys.operations_cnt].as<String>();
+  }
+
+  LCD_print("t0.txt=\"\"");
+  LCD_print("t1.txt=\"\"");
+  LCD_print("t2.txt=\"\"");
+  LCD_print("t3.txt=\"\"");
+  LCD_print("t4.txt=\"\"");
+}
+

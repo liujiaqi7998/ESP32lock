@@ -14,8 +14,8 @@ void Task_Die()
         vTaskDelete(xHandle_keypad_Task); // 删除键盘线程
     if (xHandle_LCD_Task != NULL)
         vTaskDelete(xHandle_LCD_Task); // 删除LCD线程
-    if (xHandle_Network_Task != NULL)
-        vTaskDelete(xHandle_Network_Task); // 删除网络线程
+    // if (xHandle_Network_Task != NULL)
+    //     vTaskDelete(xHandle_Network_Task); // 删除网络线程
 }
 
 void keypad_Task(void *parameter)
@@ -68,11 +68,11 @@ void Task_int()
         1,                  /* Priority of the task. */
         &xHandle_LCD_Task); /* Task handle. */
 
-    xTaskCreate(
-        Network_Task,           /* Task function. */
-        "Network_Task",         /* String with name of task. */
-        10000,                  /* Stack size in bytes. */
-        NULL,                   /* Parameter passed as input of the task */
-        1,                      /* Priority of the task. */
-        &xHandle_Network_Task); /* Task handle. */
+    // xTaskCreate(
+    //     Network_Task,           /* Task function. */
+    //     "Network_Task",         /* String with name of task. */
+    //     10000,                  /* Stack size in bytes. */
+    //     NULL,                   /* Parameter passed as input of the task */
+    //     1,                      /* Priority of the task. */
+    //     &xHandle_Network_Task); /* Task handle. */
 }
