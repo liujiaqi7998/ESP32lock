@@ -11,4 +11,5 @@ void change_user_password(String password);
 void change_admin_password(String password);
 void unlock(String password);
 void Return_to_factory();
+void Show_finger_list();
 #endif // __LCD_CALLBACK_h

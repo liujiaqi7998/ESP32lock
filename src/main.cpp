@@ -1,5 +1,7 @@
 #include <Libraries.h>
 
+
+
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
@@ -26,7 +28,7 @@ void setup()
   attachInterrupt(18, FingerPrint_Unlock, RISING); // 设置外部中断
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(200, "text/plain", "Hi! This is a sample response."); });
+            { request->send(200, "text/plain", "Hi! This is a EN Door Web Page. V5.0.6"); });
   AsyncElegantOTA.begin(&server); // Start AsyncElegantOTA
   server.begin();
 

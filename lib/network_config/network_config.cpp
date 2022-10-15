@@ -3,7 +3,6 @@
 #include <Preferences.h>
 #include <task.h>
 #include <Serial_LCD.h>
-#include "mqtt.h"
 
 wl_status_t last_network_state = WL_IDLE_STATUS;
 

@@ -5,7 +5,7 @@
 #include "network_config.h"
 #include "debug.h"
 
-
+extern int page_position;
 int page_state;               // ÆÁÄ»µ±Ç°Ò³ÃæID±ê¼Ç
 HardwareSerial LCD_Serial(1); //ÆÁÄ»Èí´®¿Ú
 
@@ -115,6 +115,11 @@ void deal_lcd_cmd(String raw_data)
   {
     page_state = raw_data_arry.at(1).toInt();
     LCD_debug("ÆÁÄ»ÇÐ»»µ½" + String(page_state));
+    if (page_state == 14)
+    {
+      page_position = 0;
+      Show_finger_list();
+    }
   }
   if (raw_data_arry.at(0) == "net")
   {
@@ -138,7 +143,20 @@ void deal_lcd_cmd(String raw_data)
   }
   if (raw_data_arry.at(0) == "ota")
   {
-    //star_ota();
+    // star_ota();
+  }
+  if (raw_data_arry.at(0) == "turn")
+  {
+    if (raw_data_arry.at(1) == "up")
+    {
+      if (page_position >= 5)
+        page_position = page_position - 5;
+    }
+    else if (raw_data_arry.at(1) == "down")
+    {
+      page_position = page_position + 5;
+    }
+    Show_finger_list();
   }
 }
 

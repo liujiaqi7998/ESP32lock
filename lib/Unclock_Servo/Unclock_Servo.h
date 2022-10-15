@@ -6,4 +6,7 @@
 
 void unclock_servo_setup();
 void unclock_servo_open();
+void pwm_setup();
+void pwm_generate(int angle, int ms);
+
 #endif // __UNCLOCK_SERVO_h

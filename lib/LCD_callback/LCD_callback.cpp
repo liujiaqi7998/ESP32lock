@@ -181,14 +181,15 @@ void Show_finger_list()
 
   for (int m = 0; m < 5; m = m + 1)
   {
-    int now_position = page_position + m;
-    String temp = "ID:" + String(now_position) + " 学号:" + finger_data[String(now_position)][finger_keys.school_id].as<String>() + " 次数:" + finger_data[String(now_position)][finger_keys.operations_cnt].as<String>();
+    int tp = page_position + m;
+    if (tp >= cost)
+    {
+      LCD_print("t" + String(m) + ".txt=\"\"");
+      LCD_print("va" + String(m) + ".val=-1");
+      continue;
+    }
+    String temp = "ID:" + String(tp) + " 学号:" + finger_data[String(tp)][finger_keys.school_id].as<String>() + " 次数:" + finger_data[String(tp)][finger_keys.operations_cnt].as<String>();
+    LCD_print("t" + String(m) + ".txt=\"" + temp + "\"");
+    LCD_print("va" + String(m) + ".val=" + String(tp));
   }
-
-  LCD_print("t0.txt=\"\"");
-  LCD_print("t1.txt=\"\"");
-  LCD_print("t2.txt=\"\"");
-  LCD_print("t3.txt=\"\"");
-  LCD_print("t4.txt=\"\"");
 }
-
