@@ -4,6 +4,7 @@
 #include "LCD_keypad.h"
 #include "network_config.h"
 #include "debug.h"
+#include "WiFi.h"
 
 extern int page_position;
 int page_state;               // 屏幕当前页面ID标记
@@ -47,6 +48,12 @@ void LCD_while()
       deal_lcd_cmd(raw_data);
     }
   }
+}
+
+void star_ota()
+{
+  delay(100);
+  LCD_print("t0.txt=\"" + WiFi.localIP().toString() + "\"");
 }
 
 void deal_lcd_cmd(String raw_data)
@@ -143,7 +150,7 @@ void deal_lcd_cmd(String raw_data)
   }
   if (raw_data_arry.at(0) == "ota")
   {
-    // star_ota();
+    star_ota();
   }
   if (raw_data_arry.at(0) == "turn")
   {
