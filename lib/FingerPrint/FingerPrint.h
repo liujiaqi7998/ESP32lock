@@ -11,6 +11,7 @@ using namespace std;
 #define FINGER_AUTOIDENTIFY true
 #define FINGER_TIMELIMIT 4
 #define FINGER_DATA_PATH "/data.txt"
+#define FINGER_DATA_BACKUP_PATH "/backup.txt"
 #define FINGER_KEYDEFAULTVALUE "UNKNOW"
 
 struct
@@ -31,7 +32,7 @@ typedef enum
     Finger_Search_FingerPrint = 1,
     Finger_Search_Name,
 } Finger_Search_Mode;
-//???????
+//功能函数
 void FingerPrint_Init();
 void FingerPrint_Enroll(String input_id);
 void FingerPrint_Delete(String input_id);
@@ -46,7 +47,7 @@ void Store_Init();
 void Store_Check();
 void FingerPrint_Unlock();
 void Finger_Check_Task(void *parameter);
-//?????
+//子函数
 void FingerPrint_ShowParameters();
 const char *FingerPrint_AnalyzeStatus(uint16_t status_code);
 uint16_t FingerPrint_IDSearch();

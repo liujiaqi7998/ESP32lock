@@ -560,9 +560,33 @@ void FingerPrint_LoadList()
     }
     PLATFORM_SERIAL.println("[文件系统]:从文件系统加载数据");
     //加载文件
+    //检查文件,并决定是否从备份文件恢复
     finger_file = SPIFFS.open(FINGER_DATA_PATH, "r", true);
+    String data_tmp = finger_file.readString();
+    finger_file.close();
+    finger_backup_file = SPIFFS.open(FINGER_DATA_BACKUP_PATH, "r", true);
+    String backup_tmp = finger_backup_file.readString();
+    finger_backup_file.close();
+    //如果源文件损坏(假设源文件损坏数据为空)
+    if (data_tmp.isEmpty())
+    {
+        finger_file = SPIFFS.open(FINGER_DATA_PATH, "w", true);
+        finger_file.print(backup_tmp);
+        finger_file.close();
+        //更新为备份数据
+        data_tmp = backup_tmp;
+    }
+    //如果源文件没问题而备份文件损坏
+    else if (backup_tmp.isEmpty())
+    {
+        finger_backup_file = SPIFFS.open(FINGER_DATA_BACKUP_PATH, "w", true);
+        finger_backup_file.print(data_tmp);
+        finger_backup_file.close();
+    }
+    //关闭文件系统
+    SPIFFS.end();
     DynamicJsonDocument tmp(2048);
-    DeserializationError error = deserializeJson(tmp, finger_file.readString());
+    DeserializationError error = deserializeJson(tmp, data_tmp);
     // JSON反序列化获取数据
     if (error)
     {
@@ -584,10 +608,6 @@ void FingerPrint_LoadList()
         finger_data[String(el)][finger_keys.school_id] = school_id;
         finger_data[String(el)][finger_keys.operations_cnt] = tmp[String(el)][finger_keys.operations_cnt].as<uint32_t>();
     }
-    //关闭文件
-    finger_file.close();
-    //关闭文件系统
-    SPIFFS.end();
 }
 
 /**
@@ -598,7 +618,12 @@ void FingerPrint_LoadList()
  */
 void FingerPrint_WriteList()
 {
-    PLATFORM_SERIAL.print("[文件系统]:打开SPIFFS文件系统");
+    PLATFORM_SERIAL.println("[文件系统]:写入数据");
+    // JSON序列化存储数据
+    String output;
+    serializeJson(finger_data, output);
+    //写入源文件
+    PLATFORM_SERIAL.println("[文件系统]:写入源文件");
     uint8_t time_limit = FINGER_TIMELIMIT;
     while (!SPIFFS.begin() && time_limit)
     {
@@ -616,16 +641,38 @@ void FingerPrint_WriteList()
     }
     //写入文件
     finger_file = SPIFFS.open(FINGER_DATA_PATH, "w", true);
-    // JSON序列化存储数据
-    String output;
-    serializeJson(finger_data, output);
     finger_file.print(output);
     // PLATFORM_SERIAL.println(output); //打印输出用户列表到串口
     //关闭文件
     finger_file.close();
-    PLATFORM_SERIAL.println("[文件系统]:数据写入成功");
     //关闭文件系统
     SPIFFS.end();
+    //写入备份文件
+    PLATFORM_SERIAL.println("[文件系统]:写入备份文件");
+    time_limit = FINGER_TIMELIMIT;
+    while (!SPIFFS.begin() && time_limit)
+    {
+        PLATFORM_SERIAL.print("...");
+        time_limit--;
+    }
+    PLATFORM_SERIAL.println();
+    if (time_limit == 0)
+    {
+        PLATFORM_SERIAL.println("[文件系统]:SPIFFS文件系统无法打开");
+    }
+    else
+    {
+        PLATFORM_SERIAL.println("[文件系统]:SPIFFS文件系统打开成功");
+    }
+    //写入文件
+    finger_backup_file = SPIFFS.open(FINGER_DATA_BACKUP_PATH, "w", true);
+    finger_backup_file.print(output);
+    // PLATFORM_SERIAL.println(output); //打印输出用户列表到串口
+    //关闭文件
+    finger_backup_file.close();
+    //关闭文件系统
+    SPIFFS.end();
+    PLATFORM_SERIAL.println("[文件系统]:数据写入成功");
 }
 
 /**
@@ -726,12 +773,13 @@ void FingerPrint_ClearDB()
 
 /**
  * @author  @Varocol
- * @brief   文件系统格式化
+ * @brief   文件系统初始化
  * @param   None
  * @return  None
  */
 void Store_Init()
 {
+    Store_Check();
     PLATFORM_SERIAL.println("[文件系统]:打开SPIFFS");
     uint8_t time_limit = FINGER_TIMELIMIT;
     while (!SPIFFS.begin() && time_limit)
@@ -751,7 +799,6 @@ void Store_Init()
     {
         PLATFORM_SERIAL.println("[文件系统]:SPIFFS打开成功");
     }
-    Store_Check();
     SPIFFS.end();
 }
 

@@ -33,6 +33,5 @@ extern HardwareSerial mySerial;
 extern AS608_Fingerprint Finger;
 extern Serial_Param serial_param;
 extern File finger_file;
-extern File system_log_file;
-
+extern File finger_backup_file;
 #endif /*__VARIABLES_H*/
