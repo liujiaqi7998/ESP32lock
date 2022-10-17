@@ -21,6 +21,18 @@ mdui-theme-layout-auto">
     <div class="mdui-appbar">
         <div class="mdui-toolbar mdui-color-theme">
             <a class="mdui-typo-headline">智能锁管理系统</a>
+            <div class="mdui-toolbar-spacer"></div>
+            <a href="https://github.com/liujiaqi7998/ESP32lock" target="_blank"
+                class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-tooltip="{content: '查看 Github'}">
+                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 36 36"
+                    enable-background="new 0 0 36 36" xml:space="preserve" class="mdui-icon"
+                    style="width: 24px;height:24px;">
+                    <path fill-rule="evenodd" clip-rule="evenodd" fill="#ffffff"
+                        d="M18,1.4C9,1.4,1.7,8.7,1.7,17.7c0,7.2,4.7,13.3,11.1,15.5c0.8,0.1,1.1-0.4,1.1-0.8c0-0.4,0-1.4,0-2.8c-4.5,1-5.5-2.2-5.5-2.2c-0.7-1.9-1.8-2.4-1.8-2.4c-1.5-1,0.1-1,0.1-1c1.6,0.1,2.5,1.7,2.5,1.7c1.5,2.5,3.8,1.8,4.7,1.4c0.1-1.1,0.6-1.8,1-2.2c-3.6-0.4-7.4-1.8-7.4-8.1c0-1.8,0.6-3.2,1.7-4.4c-0.2-0.4-0.7-2.1,0.2-4.3c0,0,1.4-0.4,4.5,1.7c1.3-0.4,2.7-0.5,4.1-0.5c1.4,0,2.8,0.2,4.1,0.5c3.1-2.1,4.5-1.7,4.5-1.7c0.9,2.2,0.3,3.9,0.2,4.3c1,1.1,1.7,2.6,1.7,4.4c0,6.3-3.8,7.6-7.4,8c0.6,0.5,1.1,1.5,1.1,3c0,2.2,0,3.9,0,4.5c0,0.4,0.3,0.9,1.1,0.8c6.5-2.2,11.1-8.3,11.1-15.5C34.3,8.7,27,1.4,18,1.4z">
+                    </path>
+                </svg>
+            </a>
         </div>
     </div>
 
@@ -111,29 +123,14 @@ mdui-theme-layout-auto">
                                                 <th>匹配次数</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Mark</td>
-                                                <td>Otto</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>Jacob</td>
-                                                <td>Thornton</td>
-                                            </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>Larry the Bird</td>
-                                                <td></td>
-                                            </tr>
+                                        <tbody id="finger_table">
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                             <!-- 卡片的按钮 -->
                             <div class="mdui-card-actions">
-                                <button
+                                <button id="getlist_but"
                                     class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">刷新列表</button>
                                 <button
                                     class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">修改学号</button>
@@ -187,6 +184,14 @@ mdui-theme-layout-auto">
 
     <script>
         var $ = mdui.$;
+
+        $('#getlist_but').on('click', function (e) {
+            mdui.snackbar({
+                message: '获取中，请稍后...',
+                position: 'bottom'
+            });
+            Refresh_list();
+        });
 
         $('#unlock').on('click', function (e) {
             mdui.snackbar({
@@ -298,6 +303,49 @@ mdui-theme-layout-auto">
                     console.log(xhr);
                 }
             });
+        }
+
+        function Refresh_list() {
+
+            var send_url = $('#url').val();
+            var admin_key = $('#admin_key').val();
+            // 检测send_url对方为空
+            if (send_url == "") {
+                mdui.alert('请先输入连接地址');
+                return;
+            }
+            // 检测admin_key对方为空
+            if (admin_key == "") {
+                mdui.alert('请先输入管理员密码');
+                return;
+            }
+            params['admin_key'] = admin_key;
+            $.ajax({
+                method: 'GET',
+                url: send_url + '/getlist',
+                data: params,
+                success: function (data) {
+                    showlist(data)
+                },
+                error: function (xhr, textStatus) {
+                    mdui.alert('请求失败:' + textStatus, "错误");
+                    console.log(xhr);
+                }
+            });
+        }
+        function showlist(params) {
+            //遍历
+            $('#finger_table').html('');
+            var list = "";
+            for (var i in params) {
+                list += "<tr>";
+                list += "<td>" + i + "</td>";
+                console.log(i);
+                list += "<td>" + params[i]['school_id'] + "</td>";
+                list += "<td>" + params[i]['operations_cnt'] + "</td>";
+                list += "</tr>";
+            }
+            $('#finger_table').html(list);
         }
     </script>
 </body>

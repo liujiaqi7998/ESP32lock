@@ -37,7 +37,7 @@ void int_web()
             }
             request->send(200, "application/json", back_data); });
 
-    server.on("/readlist", HTTP_GET, [](AsyncWebServerRequest *request)
+    server.on("/getlist", HTTP_GET, [](AsyncWebServerRequest *request)
               {
                 String back_data;
             if (request->hasParam("admin_key")) {
@@ -165,6 +165,7 @@ void int_web()
             }
             request->send(200, "application/json", back_data); });
 
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     AsyncElegantOTA.begin(&server); // Start AsyncElegantOTA
     server.begin();
 }
