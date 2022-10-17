@@ -178,7 +178,7 @@ void Show_finger_list()
     show_tips("提示", "指纹库为空", "0");
     return;
   }
-
+  LCD_print("t10.txt=\"" + String((page_position / 5) + 1) + "\"");
   for (int m = 0; m < 5; m = m + 1)
   {
     int tp = page_position + m;
