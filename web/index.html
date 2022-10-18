@@ -132,9 +132,9 @@ mdui-theme-layout-auto">
                             <div class="mdui-card-actions">
                                 <button id="getlist_but"
                                     class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">刷新列表</button>
-                                <button
-                                    class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">修改学号</button>
-                                <button
+                                <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent"
+                                    mdui-dialog="{target: '#example-1'}">修改学号</button>
+                                <button id="delid_but"
                                     class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent">删除指纹</button>
                             </div>
                         </div>
@@ -179,11 +179,91 @@ mdui-theme-layout-auto">
         </div>
     </div>
 
+    <div class="mdui-dialog" id="example-1">
+        <div class="mdui-dialog-title">请输入要修改成的学号</div>
+        <div class="mdui-dialog-content">
+            <div class="mdui-textfield">
+                <i class="mdui-icon material-icons">account_circle</i>
+                <input class="mdui-textfield-input" id="student_input" type="text" placeholder="新学号" />
+            </div>
+        </div>
+        <div class="mdui-dialog-actions">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>取消</button>
+            <button class="mdui-btn mdui-ripple" id="changeid_but" mdui-dialog-confirm>确认</button>
+        </div>
+    </div>
+
+    <div class="mdui-dialog" id="example-2">
+        <div class="mdui-dialog-title">
+            <div class="mdui-progress">
+                <div class="mdui-progress-indeterminate"></div>
+            </div>
+        </div>
+        <div class="mdui-dialog-content">加载中，请稍后...</div>
+    </div>
+
     <!-- MDUI JavaScript -->
     <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
 
     <script>
         var $ = mdui.$;
+
+        var loca_url = "http://" + window.location.host;
+        $('#url').val(loca_url);
+
+        var inst = new mdui.Dialog('#example-2', { overlay: false, history: false, modal: true, closeOnEsc: false });
+
+
+        $('#delid_but').on('click', function (e) {
+            mdui.confirm('确认删除吗？', '警告', function () {
+                var arr = new Array();
+                //遍历表格选中项
+                var table = document.getElementById("finger_table");
+                var trs = table.getElementsByTagName("tr");
+                for (var i = 0; i < trs.length; i++) {
+                    var tds = trs[i].getElementsByTagName("td");
+                    if (tds[0].getElementsByTagName("input")[0].checked) {
+                        arr.push(i);
+                    }
+                }
+                //arr是否为空
+                if (arr.length == 0) {
+                    mdui.alert('未选中任何指纹');
+                    return;
+                }
+                send_data("del_finger", { "list": JSON.stringify(arr) });
+            }, function () { }, { confirmText: "确认", cancelText: "取消" });
+        });
+
+        $('#changeid_but').on('click', function (e) {
+            var student_id = $('#student_input').val();
+            //判断是否为空
+            if (student_id == "") {
+                mdui.alert('新学号不能为空');
+                return;
+            }
+            //判断学号为1-20位
+            if (student_id.length < 1 || student_id.length > 20) {
+                mdui.alert('学号长度为1-20位');
+                return;
+            }
+            var arr = new Array();
+            //遍历表格选中项
+            var table = document.getElementById("finger_table");
+            var trs = table.getElementsByTagName("tr");
+            for (var i = 0; i < trs.length; i++) {
+                var tds = trs[i].getElementsByTagName("td");
+                if (tds[0].getElementsByTagName("input")[0].checked) {
+                    arr.push(i);
+                }
+            }
+            //arr是否为空
+            if (arr.length == 0) {
+                mdui.alert('未选中任何指纹');
+                return;
+            }
+            send_data("del_finger", { "list": JSON.stringify(arr), "new_id": student_id });
+        });
 
         $('#getlist_but').on('click', function (e) {
             mdui.snackbar({
@@ -291,14 +371,22 @@ mdui-theme-layout-auto">
                 return;
             }
             params['admin_key'] = admin_key;
+
+            inst.open();
             $.ajax({
                 method: 'GET',
                 url: send_url + '/' + watdo,
                 data: params,
                 success: function (data) {
+                    inst.close();
                     console.log(data);
+                    testJson = JSON.parse(data);
+                    if (testJson['e'] != null) {
+                        mdui.alert(testJson['e'], "提示");
+                    }
                 },
                 error: function (xhr, textStatus) {
+                    inst.close();
                     mdui.alert('请求失败:' + textStatus, "错误");
                     console.log(xhr);
                 }
@@ -319,33 +407,49 @@ mdui-theme-layout-auto">
                 mdui.alert('请先输入管理员密码');
                 return;
             }
-            params['admin_key'] = admin_key;
+            var params = { 'admin_key': admin_key };
+
+            inst.open();
             $.ajax({
                 method: 'GET',
                 url: send_url + '/getlist',
                 data: params,
                 success: function (data) {
-                    showlist(data)
+                    inst.close();
+                    var testJson = JSON.parse(data);
+                    if (testJson['e'] != null) {
+                        mdui.alert(testJson['e'], "提示");
+                    } else {
+                        showlist(testJson);
+                    }
                 },
                 error: function (xhr, textStatus) {
+                    inst.close();
                     mdui.alert('请求失败:' + textStatus, "错误");
                     console.log(xhr);
                 }
             });
         }
+
         function showlist(params) {
+            // params =
+            //     { "0": { "school_id": "UNKNOW", "operations_cnt": 10 }, "1": { "school_id": "UNKNOW", "operations_cnt": 5 }, "2": { "school_id": "202015030110", "operations_cnt": 2 }, "3": { "school_id": "202015010112", "operations_cnt": 6 }, "4": { "school_id": "202015090107", "operations_cnt": 2 }, "5": { "school_id": "202115050239", "operations_cnt": 1 }, "6": { "school_id": "2020150101121232222", "operations_cnt": 3 } };
             //遍历
             $('#finger_table').html('');
             var list = "";
             for (var i in params) {
                 list += "<tr>";
                 list += "<td>" + i + "</td>";
-                console.log(i);
                 list += "<td>" + params[i]['school_id'] + "</td>";
                 list += "<td>" + params[i]['operations_cnt'] + "</td>";
                 list += "</tr>";
             }
             $('#finger_table').html(list);
+            mdui.updateTables('.mdui-table');
+            mdui.snackbar({
+                message: '列表刷新成功！',
+                position: 'bottom'
+            });
         }
     </script>
 </body>

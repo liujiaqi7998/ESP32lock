@@ -55,4 +55,6 @@ void FingerPrint_NumSearch(vector<String> &data, String input_id);
 void FingerPrint_GetIndexTable();
 void FingerPrint_LoadList();
 void FingerPrint_WriteList();
+void FingerPrint_Delete(String id);
+void FingerPrint_Alert(String id, String school_id);
 #endif /*__FINGERPRINT_H*/
