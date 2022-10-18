@@ -8,6 +8,18 @@
 #include <WiFi.h>
 
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws"); // WebSocket对象，url为/
+
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+    // Handle WebSocket event
+    if (type == WS_EVT_CONNECT)
+    {
+        // client connected
+        client->printf("Hello Client %u :)", client->id());
+        client->ping();
+    }
+}
 
 void int_web()
 {
@@ -26,6 +38,7 @@ void int_web()
                 String real_admin_password = prefs.getString("admin_k", ""); // 读取管理员密码
                 prefs.end();
                 if(inputMessage1 == real_admin_password){
+                    ws.printfAll("执行开锁命令");
                      unclock_servo_open();
                     back_data = "{\"e\":\"开锁成功\"}";
                 }else{
@@ -239,5 +252,8 @@ void int_web()
 
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     AsyncElegantOTA.begin(&server); // Start AsyncElegantOTA
+                                    // attach AsyncWebSocket
+    ws.onEvent(onEvent);
+    server.addHandler(&ws);
     server.begin();
 }
