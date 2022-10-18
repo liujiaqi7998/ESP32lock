@@ -36,9 +36,9 @@ typedef enum
 void FingerPrint_Init();
 void FingerPrint_Enroll(String input_id);
 void FingerPrint_Delete(String input_id);
-uint16_t FingerPrint_Delete();
 void FingerPrint_ShowList();
-void FingerPrint_Alert();
+vector<uint16_t> FingerPrint_Json2List(String list);
+void FingerPrint_Alert(String id, String school_id);
 void FingerPrint_ClearDB();
 void FingerPrint_Search();
 String FingerPrint_GetDataJson();
@@ -50,11 +50,8 @@ void Finger_Check_Task(void *parameter);
 //×Óº¯Êý
 void FingerPrint_ShowParameters();
 const char *FingerPrint_AnalyzeStatus(uint16_t status_code);
-uint16_t FingerPrint_IDSearch();
 void FingerPrint_NumSearch(vector<String> &data, String input_id);
 void FingerPrint_GetIndexTable();
 void FingerPrint_LoadList();
 void FingerPrint_WriteList();
-void FingerPrint_Delete(String id);
-void FingerPrint_Alert(String id, String school_id);
 #endif /*__FINGERPRINT_H*/

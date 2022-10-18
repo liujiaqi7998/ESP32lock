@@ -226,27 +226,12 @@ mdui-theme-layout-auto">
                         arr.push(i);
                     }
                 }
-                //arr是否为空
-                if (arr.length == 0) {
-                    mdui.alert('未选中任何指纹');
-                    return;
-                }
                 send_data("del_finger", { "list": JSON.stringify(arr) });
             }, function () { }, { confirmText: "确认", cancelText: "取消" });
         });
 
         $('#changeid_but').on('click', function (e) {
             var student_id = $('#student_input').val();
-            //判断是否为空
-            if (student_id == "") {
-                mdui.alert('新学号不能为空');
-                return;
-            }
-            //判断学号为1-20位
-            if (student_id.length < 1 || student_id.length > 20) {
-                mdui.alert('学号长度为1-20位');
-                return;
-            }
             var arr = new Array();
             //遍历表格选中项
             var table = document.getElementById("finger_table");
@@ -257,12 +242,7 @@ mdui-theme-layout-auto">
                     arr.push(i);
                 }
             }
-            //arr是否为空
-            if (arr.length == 0) {
-                mdui.alert('未选中任何指纹');
-                return;
-            }
-            send_data("del_finger", { "list": JSON.stringify(arr), "new_id": student_id });
+            send_data("alert_finger", { "list": JSON.stringify(arr), "new_id": student_id });
         });
 
         $('#getlist_but').on('click', function (e) {
