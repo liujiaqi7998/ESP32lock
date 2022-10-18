@@ -164,6 +164,78 @@ void int_web()
                 back_data = "{\"e\":\"请输入管理员密码和新用户密码\"}";
             }
             request->send(200, "application/json", back_data); });
+    server.on("/del_finger", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                String back_data;
+            if (request->hasParam("admin_key") && request->hasParam("list")) {
+                String inputMessage1;
+                String inputMessage2;
+                inputMessage1 = request->getParam("admin_key")->value();
+                inputMessage2 = request->getParam("list")->value();
+                //判断list和new_id不为空
+                if (inputMessage2.isEmpty())
+                {
+                    back_data = "{\"e\":\"未选中任何指纹\"}";
+                }
+                else
+                {
+                    //解锁逻辑
+                    Preferences prefs;                                           // 声明Preferences对象
+                    prefs.begin("config");                                       // 打开命名空间config
+                    String real_user_password = prefs.getString("user_k", "");   // 读取用户密码
+                    String real_admin_password = prefs.getString("admin_k", ""); // 读取管理员密码
+                    prefs.end();
+                    if(inputMessage1 == real_admin_password){
+                        FingerPrint_Delete(inputMessage2);
+                        back_data = "{\"e\":\"删除成功\"}";
+                    }else{
+                        back_data = "{\"e\":\"管理员密码错误\"}";
+                    }
+                }
+            }
+            else {
+                back_data = "{\"e\":\"请输入管理员密码\"}";
+            }
+            request->send(200, "application/json", back_data); });
+    server.on("/alert_finger", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                String back_data;
+            if (request->hasParam("admin_key") && request->hasParam("list")&& request->hasParam("new_id")) {
+                String inputMessage1;
+                String inputMessage2;
+                String inputMessage3;
+                inputMessage1 = request->getParam("admin_key")->value();
+                inputMessage2 = request->getParam("list")->value();
+                inputMessage3 = request->getParam("new_id")->value();
+                //判断list和new_id不为空
+                if (inputMessage2.isEmpty())
+                {
+                    back_data = "{\"e\":\"未选中任何指纹\"}";
+                }
+                else if (inputMessage3.length() > 20 || inputMessage3.length() < 1)
+                {
+                    back_data = "{\"e\":\"学号长度为1-20位\"}";
+                }
+                else
+                {
+                    //解锁逻辑
+                    Preferences prefs;                                           // 声明Preferences对象
+                    prefs.begin("config");                                       // 打开命名空间config
+                    String real_user_password = prefs.getString("user_k", "");   // 读取用户密码
+                    String real_admin_password = prefs.getString("admin_k", ""); // 读取管理员密码
+                    prefs.end();
+                    if(inputMessage1 == real_admin_password){
+                        FingerPrint_Alert(inputMessage2, inputMessage3);
+                        back_data = "{\"e\":\"修改成功\"}";
+                    }else{
+                        back_data = "{\"e\":\"管理员密码错误\"}";
+                    }
+                }
+            }
+            else {
+                back_data = "{\"e\":\"请输入管理员密码\"}";
+            }
+            request->send(200, "application/json", back_data); });
 
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
     AsyncElegantOTA.begin(&server); // Start AsyncElegantOTA

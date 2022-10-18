@@ -345,83 +345,6 @@ void FingerPrint_Enroll(String input_id)
     return;
 }
 
-/**
- * @author  @Varocol
- * @brief   指纹删除
- * @param   input_id 学号
- * @return  空
- */
-// void FingerPrint_Delete(String input_id)
-// {
-//     //将ID初始化为容量值(越界值)
-//     uint8_t status;
-//     vector<String> data;
-
-//     FingerPrint_NumSearch(data, input_id);
-//     if (data.size() != 0)
-//     {
-//         for (String el : data)
-//         {
-//             if ((status = PLATFORM_FINGER.deleteModel(el.toInt())) != FINGERPRINT_OK)
-//             {
-//                 PLATFORM_SERIAL.println(FingerPrint_AnalyzeStatus(status));
-//             }
-//             else
-//             {
-//                 //删除数据
-//                 finger_data.remove(el);
-//                 PLATFORM_SERIAL.println("[指纹模块]:删除指纹ID" + el + "成功");
-//                 show_tips("删除成功", "学号: " + input_id + "\\r指纹ID: " + el, "2");
-//             }
-//         }
-//         //更新指纹索引表
-//         FingerPrint_GetIndexTable();
-//         //更新存储文件的索引表
-//         FingerPrint_WriteList();
-//     }
-//     else
-//     {
-//         PLATFORM_SERIAL.println("[指纹模块]:没有可以删除的指纹");
-//         show_tips("删除失败", "没有可以删除的指纹", "2");
-//     }
-//     return;
-// }
-/**
- * @author  @Varocol
- * @brief   指纹ID查找
- * @param   None
- * @return  指纹模块状态码
- */
-uint16_t FingerPrint_IDSearch()
-{
-    uint8_t status;
-    // int8_t mode;
-    // PLATFORM_SERIAL.println("<-------------指纹查找------------->");
-    // PLATFORM_SERIAL.printf(
-    //     "请输入查找模式:\n"
-    //     "%d.指纹查找ID\n"
-    //     "%d.学号查找ID\n",
-    //     Finger_Search_FingerPrint,
-    //     Finger_Search_Name);
-    // mode = ReadOption().toInt();
-    // if (mode == Finger_Search_FingerPrint)
-    // {
-    //     FingerPrint_Search();
-    // }
-    // else if (mode == Finger_Search_Name)
-    // {
-    //     vector<String> data;
-    //     FingerPrint_NumSearch(data);
-    //     PLATFORM_SERIAL.printf("查找到%d个数据\n", data.size());
-    //     for (String el : data)
-    //     {
-    //         PLATFORM_SERIAL.println(el);
-    //     }
-    // }
-    // PLATFORM_SERIAL.println("<---------------------------------->");
-    return status;
-}
-
 void Finger_Check_Task(void *parameter)
 {
     Serial.println("[线程管理]:启动指纹识别线程");
@@ -841,11 +764,40 @@ String FingerPrint_GetDataJson()
     serializeJson(finger_data, result);
     return result;
 }
+/**
+ * @author  @Varocol
+ * @brief   通过json获取序列
+ * @param   id          指纹id序列
+ * @param   school_id   学号
+ * @param   None
+ * @return  None
+ */
+vector<uint16_t> FingerPrint_Json2List(String list)
+{
+    DynamicJsonDocument tmp(2048);
+    DeserializationError error = deserializeJson(tmp, list);
+    vector<uint16_t> l;
+    // JSON反序列化获取数据
+    if (error)
+    {
+        PLATFORM_SERIAL.println(error.c_str());
+        PLATFORM_SERIAL.println("[文件系统]:数据反序列化失败,请格式化数据");
+    }
+    else
+    {
+        PLATFORM_SERIAL.println("[文件系统]:数据加载成功");
+    }
+    for (uint16_t i = 0; i < tmp.size(); i++)
+    {
+        l.push_back(tmp.as<uint16_t>());
+    }
+    return l;
+}
 
 /**
  * @author  @Varocol
  * @brief   修改指纹信息
- * @param   id          指纹id
+ * @param   id          指纹id序列
  * @param   school_id   学号
  * @param   None
  * @return  None
@@ -853,32 +805,42 @@ String FingerPrint_GetDataJson()
 void FingerPrint_Alert(String id, String school_id)
 {
     PLATFORM_SERIAL.println("<-------------指纹修改------------>");
-    finger_data[id][finger_keys.school_id] = school_id;
+    vector<uint16_t> id_list = FingerPrint_Json2List(id);
+    for (uint16_t el : id_list)
+    {
+        PLATFORM_SERIAL.printf("id=%d,school_id=%s\n", id, school_id.c_str());
+        finger_data[el][finger_keys.school_id] = school_id;
+    }
+    //写入数据
     FingerPrint_WriteList();
     PLATFORM_SERIAL.println("<--------------------------------->");
 }
 
 /**
  * @author  @Varocol
- * @brief   删除指纹信息
- * @param   id          指纹id
+ * @brief   修改指纹信息
+ * @param   id          指纹id序列
  * @param   None
  * @return  None
  */
 void FingerPrint_Delete(String id)
 {
     PLATFORM_SERIAL.println("<-------------指纹删除------------>");
+    vector<uint16_t> id_list = FingerPrint_Json2List(id);
     uint8_t status;
-    if ((status = PLATFORM_FINGER.deleteModel(id.toInt())) != FINGERPRINT_OK)
+    for (uint16_t el : id_list)
     {
-        PLATFORM_SERIAL.println(FingerPrint_AnalyzeStatus(status));
-    }
-    else
-    {
-        //删除数据
-        finger_data.remove(id);
-        PLATFORM_SERIAL.println("[指纹模块]:删除指纹ID" + id + "成功");
-        // show_tips("删除成功", "学号: " + id + "\\r指纹ID: " + id, "2");
+        if ((status = PLATFORM_FINGER.deleteModel(el)) != FINGERPRINT_OK)
+        {
+            PLATFORM_SERIAL.println(FingerPrint_AnalyzeStatus(status));
+        }
+        else
+        {
+            //删除数据
+            finger_data.remove(el);
+            PLATFORM_SERIAL.println("[指纹模块]:删除指纹ID" + String(el) + "成功");
+            // show_tips("删除成功", "学号: " + id + "\\r指纹ID: " + id, "2");
+        }
     }
     //更新指纹索引表
     FingerPrint_GetIndexTable();
